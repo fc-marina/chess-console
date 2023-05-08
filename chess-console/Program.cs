@@ -1,4 +1,6 @@
 ﻿using board;
+using chess_console;
 
-Position P = new Position(3, 4);
-Console.WriteLine(P.ToString());
+Board board = new Board(8,8);
+Screen.PrintBoard(board);
+Console.ReadLine();
