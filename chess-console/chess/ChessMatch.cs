@@ -7,14 +7,14 @@ namespace chess
     {
         public Board Board { get; private set; }
         public bool GameOver { get; private set; }
-        private int turn;
-        private Color player;
+        public int Turn { get; private set; }
+        public Color Player { get; private set; }
 
         public ChessMatch()
         {
-            Board = new Board(8,8);
-            turn = 1;
-            player = Color.White;
+            Board = new Board(8, 8);
+            Turn = 1;
+            Player = Color.White;
             GameOver = false;
             PutPieces();
         }
@@ -33,10 +33,10 @@ namespace chess
             Board.PutPiece(new Pawn(Board, Color.White), new ChessPosition('h', 2).ToPosition());
             Board.PutPiece(new Pawn(Board, Color.White), new ChessPosition('b', 2).ToPosition());
             Board.PutPiece(new Pawn(Board, Color.White), new ChessPosition('g', 2).ToPosition());
-            Board.PutPiece(new Pawn(Board, Color.White), new ChessPosition('c', 2).ToPosition());
+            Board.PutPiece(new Rook(Board, Color.White), new ChessPosition('c', 2).ToPosition());
             Board.PutPiece(new Pawn(Board, Color.White), new ChessPosition('f', 2).ToPosition());
-            Board.PutPiece(new Pawn(Board, Color.White), new ChessPosition('d', 2).ToPosition());
-            Board.PutPiece(new Pawn(Board, Color.White), new ChessPosition('e', 2).ToPosition());
+            Board.PutPiece(new King(Board, Color.White), new ChessPosition('d', 2).ToPosition());
+            Board.PutPiece(new Rook(Board, Color.White), new ChessPosition('e', 2).ToPosition());
 
             Board.PutPiece(new Rook(Board, Color.Black), new ChessPosition('a', 8).ToPosition());
             Board.PutPiece(new Rook(Board, Color.Black), new ChessPosition('h', 8).ToPosition());
@@ -52,14 +52,57 @@ namespace chess
             Board.PutPiece(new Pawn(Board, Color.Black), new ChessPosition('g', 7).ToPosition());
             Board.PutPiece(new Pawn(Board, Color.Black), new ChessPosition('c', 7).ToPosition());
             Board.PutPiece(new Pawn(Board, Color.Black), new ChessPosition('f', 7).ToPosition());
-            Board.PutPiece(new Pawn(Board, Color.Black), new ChessPosition('d', 7).ToPosition());
-            Board.PutPiece(new Pawn(Board, Color.Black), new ChessPosition('e', 7).ToPosition());
+            Board.PutPiece(new Rook(Board, Color.Black), new ChessPosition('d', 7).ToPosition());
+            Board.PutPiece(new King(Board, Color.Black), new ChessPosition('e', 7).ToPosition());
+        }
+
+        public void PerformMove(Position origin, Position final)
+        {
+            MakeMove(origin, final);
+            Turn++;
+            ChangePlayer();
+        }
+
+        public void ValidateOriginalPosition(Position position)
+        {
+            if (Board.Piece(position) == null)
+            {
+                throw new BoardException("Não existe peça na posição de origem escolhida!");
+            }
+            if (Player != Board.Piece(position).Color)
+            {
+                throw new BoardException("A peça de origem escolhida não é sua!");
+            }
+            if (!Board.Piece(position).IsThereAnyPossibleMovements())
+            {
+                throw new BoardException("Não há movimentos possíveis para a peça de origem escolhida!");
+            }
+        }
+
+        public void ValidateFinalPosition(Position origin, Position final)
+        {
+            if (!Board.Piece(origin).IsPossibleToMoveToPosition(final))
+            {
+                throw new BoardException("Posição de destino inválida!");
+            }
+        }
+
+        private void ChangePlayer()
+        {
+            if (Player is Color.White)
+            {
+                Player = Color.Black;
+            }
+            else
+            {
+                Player = Color.White;
+            }
         }
 
         public void MakeMove(Position origin, Position final)
         {
             Piece piece = Board.RemovePiece(origin);
-            piece.IncreaseNumberOfMouvements();
+            piece.IncreaseNumberOfMovements();
             Piece capturedPiece = Board.RemovePiece(final);
             Board.PutPiece(piece, final);
         }

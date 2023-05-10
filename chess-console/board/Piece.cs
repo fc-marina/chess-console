@@ -15,9 +15,30 @@
             NumberOfMovements = 0;
         }
 
-        public void IncreaseNumberOfMouvements()
+        public void IncreaseNumberOfMovements()
         {
             NumberOfMovements++;
+        }
+
+        public bool IsThereAnyPossibleMovements()
+        {
+            bool[,] mat = PossibleMovements();
+            for(int i=0; i<Board.Rows; i++)
+            {
+                for(int j=0; j<Board.Columns; j++)
+                {
+                    if (mat[i, j])
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        public bool IsPossibleToMoveToPosition(Position position)
+        {
+            return PossibleMovements()[position.Row, position.Column];
         }
 
         public abstract bool[,] PossibleMovements();
