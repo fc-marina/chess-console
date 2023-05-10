@@ -80,5 +80,37 @@ namespace chess_console
             int row = int.Parse(s[1] + "");
             return new ChessPosition(column, row);
         }
+
+        internal static void PrintMatch(ChessMatch match)
+        {
+            PrintBoard(match.Board);
+            Console.WriteLine();
+            PrintCapturedPieces(match);
+            Console.WriteLine();
+            Console.WriteLine("Turno: " + match.Turn);
+            Console.WriteLine("Aguardando jogador: " + match.Player);
+        }
+
+        private static void PrintCapturedPieces(ChessMatch match)
+        {
+            Console.WriteLine("Peças capturadas:");
+            Console.Write("Brancas: ");
+            PrintHashSet(match.CapturedPieces(Color.White));
+            Console.Write("Pretas: ");
+            ConsoleColor consoleColor = Console.ForegroundColor;
+            Console.ForegroundColor =  ConsoleColor.DarkYellow;
+            PrintHashSet(match.CapturedPieces(Color.Black));
+            Console.ForegroundColor= consoleColor;
+        }
+
+        public static void PrintHashSet(HashSet<Piece> pieces)
+        {
+            Console.Write("[");
+            foreach (Piece piece in pieces)
+            {
+                Console.Write(piece + " ");
+            }
+            Console.WriteLine("]");
+        }
     }
 }

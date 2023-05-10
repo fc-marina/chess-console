@@ -10,10 +10,11 @@ try
         try
         {
             Console.Clear();
-            Screen.PrintBoard(match.Board);
-            Console.WriteLine();
-            Console.WriteLine("Turno: " + match.Turn);
-            Console.WriteLine("Aguardando jogador: " + match.Player);
+            Screen.PrintMatch(match);
+            //Screen.PrintBoard(match.Board);
+            //Console.WriteLine();
+            //Console.WriteLine("Turno: " + match.Turn);
+            //Console.WriteLine("Aguardando jogador: " + match.Player);
 
             Console.WriteLine();
             Console.Write("Origem: ");
