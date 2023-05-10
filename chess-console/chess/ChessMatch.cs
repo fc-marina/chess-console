@@ -8,6 +8,7 @@ namespace chess
         public bool GameOver { get; private set; }
         public int Turn { get; private set; }
         public Color Player { get; private set; }
+        public bool IsCheck { get; private set; }
         private HashSet<Piece> _pieces;
         private HashSet<Piece> _capturedPieces;
 
@@ -17,6 +18,7 @@ namespace chess
             Turn = 1;
             Player = Color.White;
             GameOver = false;
+            IsCheck = false;
             _pieces = new HashSet<Piece>();
             _capturedPieces = new HashSet<Piece>();
             PutPieces();
@@ -70,12 +72,55 @@ namespace chess
             HashSet<Piece> pieces = new HashSet<Piece>();
             foreach (Piece piece in _capturedPieces)
             {
-                if(piece.Color == color)
+                if (piece.Color == color)
                 {
                     pieces.Add(piece);
                 }
             }
             return pieces;
+        }
+
+        private Piece? King(Color color)
+        {
+            foreach (Piece piece in PiecesOnBoard(color))
+            {
+                if (piece is King)
+                {
+                    return piece;
+                }
+            }
+            return null;
+        }
+
+        public bool IsUnderCheck(Color color)
+        {
+            Piece king = King(color);
+            if (king == null)
+            {
+                throw new BoardException("Não há rei da cor " + color + " no tabuleiro!");
+            }
+
+            foreach(Piece piece in PiecesOnBoard(OppositeColor(color)))
+            {
+                bool[,] mat = piece.PossibleMovements();
+                if (mat[king.Position.Row, king.Position.Column])
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private Color OppositeColor(Color color)
+        {
+            if (color == Color.White)
+            {
+                return Color.Black;
+            }
+            else
+            {
+                return Color.White;
+            }
         }
 
         public HashSet<Piece> PiecesOnBoard(Color color)
@@ -94,9 +139,37 @@ namespace chess
 
         public void PerformMove(Position origin, Position final)
         {
-            MakeMove(origin, final);
+            Piece capturedPiece = MakeMove(origin, final);
+
+            if (IsUnderCheck(Player))
+            {
+                UndoMovement(origin, final, capturedPiece);
+                throw new BoardException("Você não pode se colocar em xeque!");
+            }
+
+            if (IsUnderCheck(OppositeColor(Player)))
+            {
+                IsCheck = true;
+            }
+            else
+            {
+                IsCheck = false;
+            }
+
             Turn++;
             ChangePlayer();
+        }
+
+        private void UndoMovement(Position origin, Position final, Piece capturedPiece)
+        {
+            Piece piece = Board.RemovePiece(final);
+            piece.DecreaseNumberOfMovements();
+            if(capturedPiece != null)
+            {
+                Board.PutPiece(capturedPiece, final);
+                _capturedPieces.Remove(capturedPiece);
+            }
+            Board.PutPiece(piece, origin);
         }
 
         public void ValidateOriginalPosition(Position position)
@@ -135,7 +208,7 @@ namespace chess
             }
         }
 
-        public void MakeMove(Position origin, Position final)
+        public Piece MakeMove(Position origin, Position final)
         {
             Piece piece = Board.RemovePiece(origin);
             piece.IncreaseNumberOfMovements();
@@ -145,6 +218,7 @@ namespace chess
             {
                 _capturedPieces.Add(capturedPiece);
             }
+            return capturedPiece;
         }
     }
 }

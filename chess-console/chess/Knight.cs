@@ -10,7 +10,8 @@ namespace chess
 
         public override bool[,] PossibleMovements()
         {
-            throw new NotImplementedException();
+            bool[,] mat = new bool[Board.Rows, Board.Columns];
+            return mat;
         }
 
         public override string ToString()
