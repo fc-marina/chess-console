@@ -8,9 +8,69 @@ namespace chess
         {
         }
 
+        private bool IsThereAnyEnemy(Position position)
+        {
+            Piece piece = Board.Piece(position);
+            return piece != null && piece.Color != Color;
+        }
+
+        private bool IsPieceFree(Position position)
+        {
+            return Board.Piece(position) == null;
+        }
+
         public override bool[,] PossibleMovements()
         {
             bool[,] mat = new bool[Board.Rows, Board.Columns];
+
+            Position position = new Position(0, 0);
+
+            if (Color == Color.White)
+            {
+                position.DefineValues(Position.Row - 1, Position.Column);
+                if (Board.IsPositionValid(position) && IsPieceFree(position))
+                {
+                    mat[position.Row, position.Column] = true;
+                }
+                position.DefineValues(Position.Row - 2, Position.Column);
+                if (Board.IsPositionValid(position) && IsPieceFree(position) && NumberOfMovements == 0)
+                {
+                    mat[position.Row, position.Column] = true;
+                }
+                position.DefineValues(Position.Row - 1, Position.Column - 1);
+                if (Board.IsPositionValid(position) && IsThereAnyEnemy(position))
+                {
+                    mat[position.Row, position.Column] = true;
+                }
+                position.DefineValues(Position.Row - 1, Position.Column + 1);
+                if (Board.IsPositionValid(position) && IsThereAnyEnemy(position))
+                {
+                    mat[position.Row, position.Column] = true;
+                }
+            }
+            else
+            {
+                position.DefineValues(Position.Row + 1, Position.Column);
+                if (Board.IsPositionValid(position) && IsPieceFree(position))
+                {
+                    mat[position.Row, position.Column] = true;
+                }
+                position.DefineValues(Position.Row + 2, Position.Column);
+                if (Board.IsPositionValid(position) && IsPieceFree(position) && NumberOfMovements == 0)
+                {
+                    mat[position.Row, position.Column] = true;
+                }
+                position.DefineValues(Position.Row + 1, Position.Column - 1);
+                if (Board.IsPositionValid(position) && IsThereAnyEnemy(position))
+                {
+                    mat[position.Row, position.Column] = true;
+                }
+                position.DefineValues(Position.Row + 1, Position.Column + 1);
+                if (Board.IsPositionValid(position) && IsThereAnyEnemy(position))
+                {
+                    mat[position.Row, position.Column] = true;
+                }
+            }
             return mat;
         }
 

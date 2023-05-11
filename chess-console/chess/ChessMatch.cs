@@ -72,13 +72,13 @@ namespace chess
             PutNewPiece('d', 1, new Queen(Board, Color.White));
             PutNewPiece('e', 1, new King(Board, Color.White));
             PutNewPiece('a', 2, new Pawn(Board, Color.White));
-            PutNewPiece('h', 2, new Rook(Board, Color.White));
-            PutNewPiece('b', 2, new Rook(Board, Color.White));
-            PutNewPiece('g', 2, new Rook(Board, Color.White));
-            PutNewPiece('c', 2, new Rook(Board, Color.White));
-            PutNewPiece('f', 2, new Rook(Board, Color.White));
-            PutNewPiece('d', 2, new Rook(Board, Color.White));
-            PutNewPiece('e', 2, new Rook(Board, Color.White));
+            PutNewPiece('h', 2, new Pawn(Board, Color.White));
+            PutNewPiece('b', 2, new Pawn(Board, Color.White));
+            PutNewPiece('g', 2, new Pawn(Board, Color.White));
+            PutNewPiece('c', 2, new Pawn(Board, Color.White));
+            PutNewPiece('f', 2, new Pawn(Board, Color.White));
+            PutNewPiece('d', 2, new Pawn(Board, Color.White));
+            PutNewPiece('e', 2, new Pawn(Board, Color.White));
 
             PutNewPiece('a', 8, new Rook(Board, Color.Black));
             PutNewPiece('h', 8, new Rook(Board, Color.Black));
@@ -90,7 +90,7 @@ namespace chess
             PutNewPiece('e', 8, new King(Board, Color.Black));
             PutNewPiece('a', 7, new Pawn(Board, Color.Black));
             PutNewPiece('h', 7, new Pawn(Board, Color.Black));
-            PutNewPiece('b', 7, new Rook(Board, Color.Black));
+            PutNewPiece('b', 7, new Pawn(Board, Color.Black));
             PutNewPiece('g', 7, new Pawn(Board, Color.Black));
             PutNewPiece('c', 7, new Pawn(Board, Color.Black));
             PutNewPiece('f', 7, new Pawn(Board, Color.Black));
