@@ -228,7 +228,7 @@ namespace chess
 
         public void ValidateFinalPosition(Position origin, Position final)
         {
-            if (!Board.Piece(origin).IsPossibleToMoveToPosition(final))
+            if (!Board.Piece(origin).PossibleMovement(final))
             {
                 throw new BoardException("Posição de destino inválida!");
             }
