@@ -12,7 +12,7 @@ namespace chess_console
                 Console.Write(8 - i + " ");
                 for (int j = 0; j < board.Columns; j++)
                 {
-                        PrintPiece(board.Piece(i, j));
+                    PrintPiece(board.Piece(i, j));
                 }
                 Console.WriteLine();
             }
@@ -88,10 +88,19 @@ namespace chess_console
             PrintCapturedPieces(match);
             Console.WriteLine();
             Console.WriteLine("Turno: " + match.Turn);
-            Console.WriteLine("Aguardando jogador: " + match.Player);
-            if (match.IsCheck)
+            if (!match.IsGameOver)
             {
-                Console.WriteLine("XEQUE!");
+                Console.WriteLine("Aguardando jogador: " + match.Player);
+                if (match.IsCheck)
+                {
+                    Console.WriteLine("XEQUE!");
+                }
+            }
+            else
+            {
+                Console.WriteLine("XEQUEMATE!");
+                Console.WriteLine("Vencedor: " + match.Player);
+
             }
         }
 
@@ -102,9 +111,9 @@ namespace chess_console
             PrintHashSet(match.CapturedPieces(Color.White));
             Console.Write("Pretas: ");
             ConsoleColor consoleColor = Console.ForegroundColor;
-            Console.ForegroundColor =  ConsoleColor.DarkYellow;
+            Console.ForegroundColor = ConsoleColor.DarkYellow;
             PrintHashSet(match.CapturedPieces(Color.Black));
-            Console.ForegroundColor= consoleColor;
+            Console.ForegroundColor = consoleColor;
         }
 
         public static void PrintHashSet(HashSet<Piece> pieces)

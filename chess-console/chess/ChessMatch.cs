@@ -5,7 +5,7 @@ namespace chess
     internal class ChessMatch
     {
         public Board Board { get; private set; }
-        public bool GameOver { get; private set; }
+        public bool IsGameOver { get; private set; }
         public int Turn { get; private set; }
         public Color Player { get; private set; }
         public bool IsCheck { get; private set; }
@@ -17,11 +17,42 @@ namespace chess
             Board = new Board(8, 8);
             Turn = 1;
             Player = Color.White;
-            GameOver = false;
+            IsGameOver = false;
             IsCheck = false;
             _pieces = new HashSet<Piece>();
             _capturedPieces = new HashSet<Piece>();
             PutPieces();
+        }
+
+        public bool IsCheckmate(Color color)
+        {
+            if (!IsUnderCheck(color))
+            {
+                return false;
+            }
+            foreach (Piece piece in PiecesOnBoard(color))
+            {
+                bool[,] mat = piece.PossibleMovements();
+                for (int i = 0; i < Board.Rows; i++)
+                {
+                    for (int j = 0; j < Board.Columns; j++)
+                    {
+                        if (mat[i, j])
+                        {
+                            Position origen = piece.Position;
+                            Position final = new Position(i, j);
+                            Piece capturedPiece = MakeMove(origen, final);
+                            bool isCheck = IsUnderCheck(color);
+                            UndoMovement(origen, final, capturedPiece);
+                            if (!isCheck)
+                            {
+                                return false;
+                            }
+                        }
+                    }
+                }
+            }
+            return true;
         }
 
         private void PutNewPiece(char column, int row, Piece piece)
@@ -41,7 +72,7 @@ namespace chess
             PutNewPiece('d', 1, new Queen(Board, Color.White));
             PutNewPiece('e', 1, new King(Board, Color.White));
             PutNewPiece('a', 2, new Pawn(Board, Color.White));
-            PutNewPiece('h', 2, new Pawn(Board, Color.White));
+            PutNewPiece('h', 2, new Rook(Board, Color.White));
             PutNewPiece('b', 2, new Rook(Board, Color.White));
             PutNewPiece('g', 2, new Rook(Board, Color.White));
             PutNewPiece('c', 2, new Rook(Board, Color.White));
@@ -60,11 +91,11 @@ namespace chess
             PutNewPiece('a', 7, new Pawn(Board, Color.Black));
             PutNewPiece('h', 7, new Pawn(Board, Color.Black));
             PutNewPiece('b', 7, new Rook(Board, Color.Black));
-            PutNewPiece('g', 7, new Rook(Board, Color.Black));
-            PutNewPiece('c', 7, new Rook(Board, Color.Black));
-            PutNewPiece('f', 7, new Rook(Board, Color.Black));
-            PutNewPiece('d', 7, new Rook(Board, Color.Black));
-            PutNewPiece('e', 7, new Rook(Board, Color.Black));
+            PutNewPiece('g', 7, new Pawn(Board, Color.Black));
+            PutNewPiece('c', 7, new Pawn(Board, Color.Black));
+            PutNewPiece('f', 7, new Pawn(Board, Color.Black));
+            PutNewPiece('d', 7, new Pawn(Board, Color.Black));
+            PutNewPiece('e', 7, new Pawn(Board, Color.Black));
         }
 
         public HashSet<Piece> CapturedPieces(Color color)
@@ -100,7 +131,7 @@ namespace chess
                 throw new BoardException("Não há rei da cor " + color + " no tabuleiro!");
             }
 
-            foreach(Piece piece in PiecesOnBoard(OppositeColor(color)))
+            foreach (Piece piece in PiecesOnBoard(OppositeColor(color)))
             {
                 bool[,] mat = piece.PossibleMovements();
                 if (mat[king.Position.Row, king.Position.Column])
@@ -156,15 +187,22 @@ namespace chess
                 IsCheck = false;
             }
 
-            Turn++;
-            ChangePlayer();
+            if (IsCheckmate(OppositeColor(Player)))
+            {
+                IsGameOver = true;
+            }
+            else
+            {
+                Turn++;
+                ChangePlayer();
+            }
         }
 
         private void UndoMovement(Position origin, Position final, Piece capturedPiece)
         {
             Piece piece = Board.RemovePiece(final);
             piece.DecreaseNumberOfMovements();
-            if(capturedPiece != null)
+            if (capturedPiece != null)
             {
                 Board.PutPiece(capturedPiece, final);
                 _capturedPieces.Remove(capturedPiece);

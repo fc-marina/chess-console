@@ -5,16 +5,12 @@ using chess_console;
 try
 {
     ChessMatch match = new ChessMatch();
-    while (!match.GameOver)
+    while (!match.IsGameOver)
     {
         try
         {
             Console.Clear();
             Screen.PrintMatch(match);
-            //Screen.PrintBoard(match.Board);
-            //Console.WriteLine();
-            //Console.WriteLine("Turno: " + match.Turn);
-            //Console.WriteLine("Aguardando jogador: " + match.Player);
 
             Console.WriteLine();
             Console.Write("Origem: ");
@@ -39,6 +35,8 @@ try
             Console.ReadLine();
         }
     }
+    Console.Clear();
+    Screen.PrintMatch(match);
 }
 catch (BoardException ex)
 {
