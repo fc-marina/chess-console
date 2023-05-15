@@ -9,6 +9,7 @@ namespace chess
         public int Turn { get; private set; }
         public Color Player { get; private set; }
         public bool IsCheck { get; private set; }
+        public Piece? VulnerableEnPassant { get; private set; }
         private HashSet<Piece> _pieces;
         private HashSet<Piece> _capturedPieces;
 
@@ -21,6 +22,7 @@ namespace chess
             IsCheck = false;
             _pieces = new HashSet<Piece>();
             _capturedPieces = new HashSet<Piece>();
+            VulnerableEnPassant = null;
             PutPieces();
         }
 
@@ -71,14 +73,14 @@ namespace chess
             PutNewPiece('f', 1, new Bishop(Board, Color.White));
             PutNewPiece('d', 1, new Queen(Board, Color.White));
             PutNewPiece('e', 1, new King(Board, Color.White, this));
-            PutNewPiece('a', 2, new Pawn(Board, Color.White));
-            PutNewPiece('h', 2, new Pawn(Board, Color.White));
-            PutNewPiece('b', 2, new Pawn(Board, Color.White));
-            PutNewPiece('g', 2, new Pawn(Board, Color.White));
-            PutNewPiece('c', 2, new Pawn(Board, Color.White));
-            PutNewPiece('f', 2, new Pawn(Board, Color.White));
-            PutNewPiece('d', 2, new Pawn(Board, Color.White));
-            PutNewPiece('e', 2, new Pawn(Board, Color.White));
+            PutNewPiece('a', 2, new Pawn(Board, Color.White, this));
+            PutNewPiece('h', 2, new Pawn(Board, Color.White, this));
+            PutNewPiece('b', 2, new Pawn(Board, Color.White, this));
+            PutNewPiece('g', 2, new Pawn(Board, Color.White, this));
+            PutNewPiece('c', 2, new Pawn(Board, Color.White, this));
+            PutNewPiece('f', 2, new Pawn(Board, Color.White, this));
+            PutNewPiece('d', 2, new Pawn(Board, Color.White, this));
+            PutNewPiece('e', 2, new Pawn(Board, Color.White, this));
 
             PutNewPiece('a', 8, new Rook(Board, Color.Black));
             PutNewPiece('h', 8, new Rook(Board, Color.Black));
@@ -88,14 +90,14 @@ namespace chess
             PutNewPiece('f', 8, new Bishop(Board, Color.Black));
             PutNewPiece('d', 8, new Queen(Board, Color.Black));
             PutNewPiece('e', 8, new King(Board, Color.Black, this));
-            PutNewPiece('a', 7, new Pawn(Board, Color.Black));
-            PutNewPiece('h', 7, new Pawn(Board, Color.Black));
-            PutNewPiece('b', 7, new Pawn(Board, Color.Black));
-            PutNewPiece('g', 7, new Pawn(Board, Color.Black));
-            PutNewPiece('c', 7, new Pawn(Board, Color.Black));
-            PutNewPiece('f', 7, new Pawn(Board, Color.Black));
-            PutNewPiece('d', 7, new Pawn(Board, Color.Black));
-            PutNewPiece('e', 7, new Pawn(Board, Color.Black));
+            PutNewPiece('a', 7, new Pawn(Board, Color.Black, this));
+            PutNewPiece('h', 7, new Pawn(Board, Color.Black, this));
+            PutNewPiece('b', 7, new Pawn(Board, Color.Black, this));
+            PutNewPiece('g', 7, new Pawn(Board, Color.Black, this));
+            PutNewPiece('c', 7, new Pawn(Board, Color.Black, this));
+            PutNewPiece('f', 7, new Pawn(Board, Color.Black, this));
+            PutNewPiece('d', 7, new Pawn(Board, Color.Black, this));
+            PutNewPiece('e', 7, new Pawn(Board, Color.Black, this));
         }
 
         public HashSet<Piece> CapturedPieces(Color color)
@@ -196,9 +198,20 @@ namespace chess
                 Turn++;
                 ChangePlayer();
             }
+
+            Piece piece = Board.Piece(final);
+
+            if (piece is Pawn && (final.Row == origin.Row - 2 || final.Row == origin.Row + 2))
+            {
+                VulnerableEnPassant = piece;
+            }
+            else
+            {
+                VulnerableEnPassant = null;
+            }
         }
 
-        private void UndoMovement(Position origin, Position final, Piece capturedPiece)
+        private void UndoMovement(Position origin, Position final, Piece? capturedPiece)
         {
             Piece piece = Board.RemovePiece(final);
             piece.DecreaseNumberOfMovements();
@@ -225,6 +238,25 @@ namespace chess
                 Piece piece1 = Board.RemovePiece(finalRook);
                 piece1.DecreaseNumberOfMovements();
                 Board.PutPiece(piece1, originRook);
+            }
+
+            // en passant
+            if (piece is Pawn)
+            {
+                if (origin.Column != final.Column && capturedPiece == VulnerableEnPassant)
+                {
+                    Piece pawn = Board.RemovePiece(final);
+                    Position positionPawn;
+                    if (piece.Color == Color.White)
+                    {
+                        positionPawn = new Position(3, final.Column);
+                    }
+                    else
+                    {
+                        positionPawn = new Position(4, final.Column);
+                    }
+                    Board.PutPiece(pawn, positionPawn);
+                }
             }
         }
 
@@ -268,7 +300,7 @@ namespace chess
         {
             Piece piece = Board.RemovePiece(origin);
             piece.IncreaseNumberOfMovements();
-            Piece capturedPiece = Board.RemovePiece(final);
+            Piece? capturedPiece = Board.RemovePiece(final);
             Board.PutPiece(piece, final);
             if (capturedPiece != null)
             {
@@ -294,6 +326,24 @@ namespace chess
                 Board.PutPiece(piece1, finalRook);
             }
 
+            //# en passant
+            if (piece is Pawn)
+            {
+                if (origin.Column != final.Column && capturedPiece == null)
+                {
+                    Position pawnPosition;
+                    if (piece.Color == Color.White)
+                    {
+                        pawnPosition = new Position(final.Row + 1, final.Column);
+                    }
+                    else
+                    {
+                        pawnPosition = new Position(final.Row - 1, final.Column);
+                    }
+                    capturedPiece = Board.RemovePiece(pawnPosition);
+                    _capturedPieces.Add(capturedPiece);
+                }
+            }
             return capturedPiece;
         }
     }
