@@ -70,7 +70,7 @@ namespace chess
             PutNewPiece('c', 1, new Bishop(Board, Color.White));
             PutNewPiece('f', 1, new Bishop(Board, Color.White));
             PutNewPiece('d', 1, new Queen(Board, Color.White));
-            PutNewPiece('e', 1, new King(Board, Color.White));
+            PutNewPiece('e', 1, new King(Board, Color.White, this));
             PutNewPiece('a', 2, new Pawn(Board, Color.White));
             PutNewPiece('h', 2, new Pawn(Board, Color.White));
             PutNewPiece('b', 2, new Pawn(Board, Color.White));
@@ -87,7 +87,7 @@ namespace chess
             PutNewPiece('c', 8, new Bishop(Board, Color.Black));
             PutNewPiece('f', 8, new Bishop(Board, Color.Black));
             PutNewPiece('d', 8, new Queen(Board, Color.Black));
-            PutNewPiece('e', 8, new King(Board, Color.Black));
+            PutNewPiece('e', 8, new King(Board, Color.Black, this));
             PutNewPiece('a', 7, new Pawn(Board, Color.Black));
             PutNewPiece('h', 7, new Pawn(Board, Color.Black));
             PutNewPiece('b', 7, new Pawn(Board, Color.Black));
@@ -208,6 +208,24 @@ namespace chess
                 _capturedPieces.Remove(capturedPiece);
             }
             Board.PutPiece(piece, origin);
+
+            if (piece is King && final.Column == origin.Column + 2)
+            {
+                Position originRook = new Position(origin.Row, origin.Column + 3);
+                Position finalRook = new Position(origin.Row, origin.Column + 1);
+                Piece piece1 = Board.RemovePiece(finalRook);
+                piece1.DecreaseNumberOfMovements();
+                Board.PutPiece(piece1, originRook);
+            }
+
+            if (piece is King && final.Column == origin.Column - 2)
+            {
+                Position originRook = new Position(origin.Row, origin.Column - 4);
+                Position finalRook = new Position(origin.Row, origin.Column - 1);
+                Piece piece1 = Board.RemovePiece(finalRook);
+                piece1.DecreaseNumberOfMovements();
+                Board.PutPiece(piece1, originRook);
+            }
         }
 
         public void ValidateOriginalPosition(Position position)
@@ -256,6 +274,26 @@ namespace chess
             {
                 _capturedPieces.Add(capturedPiece);
             }
+
+            //# special move roque
+            if (piece is King && final.Column == origin.Column + 2)
+            {
+                Position originRook = new Position(origin.Row, origin.Column + 3);
+                Position finalRook = new Position(origin.Row, origin.Column + 1);
+                Piece piece1 = Board.RemovePiece(originRook);
+                piece1.IncreaseNumberOfMovements();
+                Board.PutPiece(piece1, finalRook);
+            }
+
+            if (piece is King && final.Column == origin.Column - 2)
+            {
+                Position originRook = new Position(origin.Row, origin.Column - 4);
+                Position finalRook = new Position(origin.Row, origin.Column - 1);
+                Piece piece1 = Board.RemovePiece(originRook);
+                piece1.IncreaseNumberOfMovements();
+                Board.PutPiece(piece1, finalRook);
+            }
+
             return capturedPiece;
         }
     }
