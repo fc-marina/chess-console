@@ -180,6 +180,21 @@ namespace chess
                 throw new BoardException("Você não pode se colocar em xeque!");
             }
 
+            Piece piece = Board.Piece(final);
+
+            // #jogada especial promocao
+            if (piece is Pawn)
+            {
+                if ((piece.Color == Color.White && final.Row == 0) || (piece.Color == Color.Black && final.Row == 7))
+                {
+                    piece = Board.RemovePiece(final);
+                    _pieces.Remove(piece);
+                    Piece queen = new Queen(Board, piece.Color);
+                    Board.PutPiece(queen, final);
+                    _pieces.Add(queen);
+                }
+            }
+
             if (IsUnderCheck(OppositeColor(Player)))
             {
                 IsCheck = true;
@@ -198,8 +213,6 @@ namespace chess
                 Turn++;
                 ChangePlayer();
             }
-
-            Piece piece = Board.Piece(final);
 
             if (piece is Pawn && (final.Row == origin.Row - 2 || final.Row == origin.Row + 2))
             {
